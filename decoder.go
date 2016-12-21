@@ -1,7 +1,6 @@
 package form
 
 import (
-	"errors"
 	"fmt"
 	"net/url"
 )
@@ -43,83 +42,94 @@ func (form *Form) reset() {
 }
 
 func (form *Form) Decode() (map[string]interface{}, error) {
+
 	form.reset()
-	vals, err := url.ParseQuery(form.raw)
+
+	u, err := url.QueryUnescape(form.raw)
 
 	if err != nil {
 		return nil, err
 	}
-	for k, v := range vals {
-		paths, err := form.parsePath(k)
-		if err != nil {
-			return nil, err
-		}
 
-		if len(paths) < 1 {
-			return nil, errors.New("empty key")
-		}
-
-		var c map[string]interface{} = form.dest
-		for i := 0; i < len(paths)-1; i++ {
-			nv, ok := (c)[paths[i]]
-			if ok {
-				nm, ok := nv.(map[string]interface{})
-				if ok {
-					c = nm
-				} else {
-					return nil, errors.New("must be map[string]interface{}:" + paths[i])
-				}
-			} else {
-				(c)[paths[i]] = make(map[string]interface{})
-				nm := (c)[paths[i]].(map[string]interface{})
-				c = nm
-			}
-		}
-		if len(v) > 1 {
-			(c)[paths[len(paths)-1]] = v
-		} else {
-			(c)[paths[len(paths)-1]] = v[0]
-		}
-	}
-
-	dest := form.parseArray(form.dest)
-	return dest, nil
-}
-
-func (form *Form) parsePath(path string) ([]string, error) {
+	u = form.raw
 
 	var paths []string
-	var current string
 
-	for _, c := range path {
-		if c == '.' {
-			c = '_'
-		}
+	vals := make(map[string]interface{})
+
+	state := 0
+
+	current := ""
+
+	for _, c := range u {
 		switch c {
+		case '.':
+			//php replace . to _
+			if state == 0 {
+				c = '_'
+			}
 		case '[':
-			if len(current) > 0 {
+			if state == 0 && len(current) > 0 {
 				paths = append(paths, current)
 				current = ""
+				continue
 			}
-			break
+			if state == 0 {
+				continue
+			}
 		case ']':
-			if len(current) > 0 {
+			if state == 0 {
 				paths = append(paths, current)
 				current = ""
-			} else {
-				return nil, errors.New("not allow empty key")
+				continue
 			}
-		default:
-			current += string(c)
+		case '&':
+			if state == 1 && len(current) > 0 {
+				insertValue(&vals, paths, current)
+				current = ""
+				paths = make([]string, 0)
+			}
+			state = 0
+			continue
+		case '=':
+			if state == 0 {
+				if len(current) > 0 {
+					paths = append(paths, current)
+					current = ""
+				}
+				state = 1
+				continue
+			}
 		}
+		current = current + string(c)
 	}
-
-	if len(current) > 0 {
-		paths = append(paths, current)
+	if state == 1 && len(current) > 0 {
+		insertValue(&vals, paths, current)
 		current = ""
+		paths = make([]string, 0)
+	}
+	return form.parseArray(vals), nil
+}
+
+func insertValue(destP *map[string]interface{}, path []string, val string) {
+	dest := *destP
+	for i := 0; i < len(path)-1; i++ {
+		p := path[i]
+		if p == "" {
+			p = fmt.Sprint(len(dest))
+		}
+
+		if _, ok := dest[p].(map[string]interface{}); !ok {
+			dest[p] = make(map[string]interface{})
+		}
+		dest = dest[p].(map[string]interface{})
+	}
+	p := path[len(path)-1]
+	if p == "" {
+		p = fmt.Sprint(len(dest))
 	}
 
-	return paths, nil
+	dest[p] = val
 }
 
 //如果是连续下标，则视为[]interface{},否则则是map[string]interface{}
