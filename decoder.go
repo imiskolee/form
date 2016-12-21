@@ -2,6 +2,7 @@ package form
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 )
 
@@ -41,7 +42,7 @@ func (form *Form) reset() {
 	form.dest = make(map[string]interface{})
 }
 
-func (form *Form) Decode() (map[string]interface{}, error) {
+func (form *Form) Decode() (interface{}, error) {
 	form.reset()
 	vals, err := url.ParseQuery(form.raw)
 
@@ -79,9 +80,10 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 		} else {
 			(c)[paths[len(paths)-1]] = v[0]
 		}
-
 	}
-	return form.dest, nil
+
+	dest := form.parseArray(form.dest)
+	return dest, nil
 }
 
 func (form *Form) parsePath(path string) ([]string, error) {
@@ -90,6 +92,9 @@ func (form *Form) parsePath(path string) ([]string, error) {
 	var current string
 
 	for _, c := range path {
+		if c == '.' {
+			c = '_'
+		}
 		switch c {
 		case '[':
 			if len(current) > 0 {
@@ -115,4 +120,30 @@ func (form *Form) parsePath(path string) ([]string, error) {
 	}
 
 	return paths, nil
+}
+
+//如果是连续下标，则视为[]interface{},否则则是map[string]interface{}
+func (form *Form) parseArrayItem(dest map[string]interface{}) interface{} {
+	len := len(dest)
+	var arr []interface{}
+	for i := 0; i < len; i++ {
+		item, ok := dest[fmt.Sprint(i)]
+		if !ok {
+			return dest
+		}
+		arr = append(arr, item)
+	}
+	return arr
+}
+
+func (form *Form) parseArray(dest map[string]interface{}) interface{} {
+
+	for k, v := range dest {
+		mv, ok := v.(map[string]interface{})
+		if ok {
+			form.parseArray(mv)
+			dest[k] = form.parseArrayItem(mv)
+		}
+	}
+	return dest
 }
