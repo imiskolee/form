@@ -21,7 +21,7 @@ func Test_RawQueryCase1(t *testing.T) {
 
 func Test_RawQueryCase2(t *testing.T) {
 
-	query := `a=1&a=2&a=3`
+	query := `a=a&a=2&a=3`
 
 	decoder := NewForm(query)
 
@@ -139,6 +139,19 @@ func Test_RawQueryCase9(t *testing.T) {
 func Test_RawQueryCase11(t *testing.T) {
 
 	query := `a[][a]=1&a[][a]=1&a[][a]=1`
+
+	decoder := NewForm(query)
+
+	dest, err := decoder.Decode()
+
+	dd, _ := json.Marshal(dest)
+
+	fmt.Println(query, string(dd), err)
+}
+
+func Test_RawQueryCase12(t *testing.T) {
+
+	query := `a=&b=1`
 
 	decoder := NewForm(query)
 

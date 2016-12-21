@@ -82,7 +82,7 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 				continue
 			}
 		case '&':
-			if state == 1 && len(current) > 0 {
+			if state == 1 {
 				insertValue(&vals, paths, current)
 				current = ""
 				paths = make([]string, 0)
@@ -101,7 +101,8 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 		}
 		current = current + string(c)
 	}
-	if state == 1 && len(current) > 0 {
+
+	if state == 1 {
 		insertValue(&vals, paths, current)
 		current = ""
 		paths = make([]string, 0)
@@ -126,7 +127,6 @@ func insertValue(destP *map[string]interface{}, path []string, val string) {
 	if p == "" {
 		p = fmt.Sprint(len(dest))
 	}
-
 	dest[p] = val
 }
 
@@ -134,6 +134,7 @@ func insertValue(destP *map[string]interface{}, path []string, val string) {
 func (form *Form) parseArrayItem(dest map[string]interface{}) interface{} {
 	len := len(dest)
 	var arr []interface{}
+
 	for i := 0; i < len; i++ {
 		item, ok := dest[fmt.Sprint(i)]
 		if !ok {
