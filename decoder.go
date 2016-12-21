@@ -42,7 +42,7 @@ func (form *Form) reset() {
 	form.dest = make(map[string]interface{})
 }
 
-func (form *Form) Decode() (interface{}, error) {
+func (form *Form) Decode() (map[string]interface{}, error) {
 	form.reset()
 	vals, err := url.ParseQuery(form.raw)
 
@@ -136,7 +136,7 @@ func (form *Form) parseArrayItem(dest map[string]interface{}) interface{} {
 	return arr
 }
 
-func (form *Form) parseArray(dest map[string]interface{}) interface{} {
+func (form *Form) parseArray(dest map[string]interface{}) map[string]interface{} {
 
 	for k, v := range dest {
 		mv, ok := v.(map[string]interface{})
