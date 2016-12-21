@@ -8,7 +8,7 @@ import (
 
 func Test_RawQueryCase1(t *testing.T) {
 
-	query := `query_dsl[query][bool][must][0][term][subscribe]=1&query_dsl[query][bool][must][1][terms][tag_list][]=802343393920557056&query_dsl[size]=5&query_dsl[from]=0&query_dsl[sort][subscribe_dateline]=desc`
+	query := `query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B0%5D%5Bterm%5D%5Bsubscribe%5D%3D1%26query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B1%5D%5Bterms%5D%5Btag_list%5D%5B%5D%3D802343393920557056%26query_dsl%5Bsize%5D%3D5%26query_dsl%5Bfrom%5D%3D0%26query_dsl%5Bsort%5D%5Bsubscribe_dateline%5D%3Ddesc`
 
 	decoder := NewForm(query)
 

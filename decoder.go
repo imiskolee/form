@@ -51,8 +51,6 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	u = form.raw
-
 	var paths []string
 
 	vals := make(map[string]interface{})
