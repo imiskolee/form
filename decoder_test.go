@@ -161,3 +161,16 @@ func Test_RawQueryCase12(t *testing.T) {
 
 	fmt.Println(query, string(dd), err)
 }
+
+func Test_RawQueryCase13(t *testing.T) {
+
+	query := `url=http%3A%2F%2Fmp.weixinhost.com%2Faddon%2Fclient_api%3Fa%3Dresource_record%26code%3Df478ce5caadbfc230cca68f203f2d91b`
+
+	decoder := NewForm(query)
+
+	dest, err := decoder.Decode()
+
+	dd, _ := json.Marshal(dest)
+
+	fmt.Println(query, string(dd), err)
+}

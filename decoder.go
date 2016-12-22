@@ -45,12 +45,7 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 
 	form.reset()
 
-	u, err := url.QueryUnescape(form.raw)
-
-	if err != nil {
-		return nil, err
-	}
-
+	u := form.raw
 	var paths []string
 
 	vals := make(map[string]interface{})
@@ -111,6 +106,9 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 }
 
 func insertValue(destP *map[string]interface{}, path []string, val string) {
+
+	u, _ := url.QueryUnescape(val)
+
 	dest := *destP
 	for i := 0; i < len(path)-1; i++ {
 		p := path[i]
@@ -127,7 +125,7 @@ func insertValue(destP *map[string]interface{}, path []string, val string) {
 	if p == "" {
 		p = fmt.Sprint(len(dest))
 	}
-	dest[p] = val
+	dest[p] = u
 }
 
 //如果是连续下标，则视为[]interface{},否则则是map[string]interface{}
