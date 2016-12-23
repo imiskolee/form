@@ -8,14 +8,11 @@ import (
 
 func Test_RawQueryCase1(t *testing.T) {
 
-	query := `query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B0%5D%5Bterm%5D%5Bsubscribe%5D%3D1%26query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B1%5D%5Bterms%5D%5Btag_list%5D%5B%5D%3D802343393920557056%26query_dsl%5Bsize%5D%3D5%26query_dsl%5Bfrom%5D%3D0%26query_dsl%5Bsort%5D%5Bsubscribe_dateline%5D%3Ddesc`
+	query := `query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B0%5D%5Bterm%5D%5Bsubscribe%5D=1&query_dsl%5Bsize%5D=50&query_dsl%5Bfrom%5D=0&query_dsl%5Bsort%5D%5Bsubscribe_dateline%5D=desc`
 
 	decoder := NewForm(query)
-
 	dest, err := decoder.Decode()
-
 	dd, _ := json.Marshal(dest)
-
 	fmt.Println(query, string(dd), err)
 }
 
@@ -164,8 +161,7 @@ func Test_RawQueryCase12(t *testing.T) {
 
 func Test_RawQueryCase13(t *testing.T) {
 
-	query := `url=http%3A%2F%2Fmp.weixinhost.com%2Faddon%2Fclient_api%3Fa%3Dresource_record%26code%3Df478ce5caadbfc230cca68f203f2d91b`
-
+	query := `token=39b2e29403e8232f6941a2a09c1dfb43&url=http%3A%2F%2Fmp.weixinhost.com%2Faddon%2Fclient_api%3Fa%3Dresource_record%26code%3Da1eaa3ad381aaa768e78d6eb952229d3`
 	decoder := NewForm(query)
 
 	dest, err := decoder.Decode()

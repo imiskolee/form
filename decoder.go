@@ -1,9 +1,7 @@
 package form
 
-import (
-	"fmt"
-	"net/url"
-)
+import "fmt"
+import "net/url"
 
 /**
 用于支持PHP的$_POST解析。
@@ -46,13 +44,14 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 	form.reset()
 
 	u := form.raw
-	var paths []string
 
 	vals := make(map[string]interface{})
 
 	state := 0
 
 	current := ""
+
+	var key string
 
 	for _, c := range u {
 		switch c {
@@ -61,33 +60,34 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 			if state == 0 {
 				c = '_'
 			}
-		case '[':
-			if state == 0 && len(current) > 0 {
-				paths = append(paths, current)
-				current = ""
-				continue
-			}
-			if state == 0 {
-				continue
-			}
-		case ']':
-			if state == 0 {
-				paths = append(paths, current)
-				current = ""
-				continue
-			}
+		/*
+			case '[':
+				if state == 0 && len(current) > 0 {
+					paths = append(paths, current)
+					current = ""
+					continue
+				}
+				if state == 0 {
+					continue
+				}
+			case ']':
+				if state == 0 {
+					paths = append(paths, current)
+					current = ""
+					continue
+				}
+		*/
 		case '&':
 			if state == 1 {
-				insertValue(&vals, paths, current)
+				insertValue(&vals, key, current)
 				current = ""
-				paths = make([]string, 0)
 			}
 			state = 0
 			continue
 		case '=':
 			if state == 0 {
 				if len(current) > 0 {
-					paths = append(paths, current)
+					key = current
 					current = ""
 				}
 				state = 1
@@ -98,16 +98,39 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 	}
 
 	if state == 1 {
-		insertValue(&vals, paths, current)
+		insertValue(&vals, key, current)
 		current = ""
-		paths = make([]string, 0)
 	}
 	return form.parseArray(vals), nil
 }
 
-func insertValue(destP *map[string]interface{}, path []string, val string) {
+func insertValue(destP *map[string]interface{}, key string, val string) {
 
-	u, _ := url.QueryUnescape(val)
+	key, _ = url.QueryUnescape(key)
+
+	var path []string
+	var current string
+
+	for _, c := range key {
+		switch c {
+		case '[':
+			if len(current) > 0 {
+				path = append(path, current)
+				current = ""
+			}
+			break
+		case ']':
+			path = append(path, current)
+			current = ""
+			continue
+		default:
+			current += string(c)
+		}
+	}
+
+	if len(current) > 0 {
+		path = append(path, current)
+	}
 
 	dest := *destP
 	for i := 0; i < len(path)-1; i++ {
@@ -115,7 +138,6 @@ func insertValue(destP *map[string]interface{}, path []string, val string) {
 		if p == "" {
 			p = fmt.Sprint(len(dest))
 		}
-
 		if _, ok := dest[p].(map[string]interface{}); !ok {
 			dest[p] = make(map[string]interface{})
 		}
@@ -125,7 +147,9 @@ func insertValue(destP *map[string]interface{}, path []string, val string) {
 	if p == "" {
 		p = fmt.Sprint(len(dest))
 	}
-	dest[p] = u
+	val, _ = url.QueryUnescape(val)
+
+	dest[p] = val
 }
 
 //如果是连续下标，则视为[]interface{},否则则是map[string]interface{}
