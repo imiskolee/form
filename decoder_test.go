@@ -8,7 +8,7 @@ import (
 
 func Test_RawQueryCase1(t *testing.T) {
 
-	query := `query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B0%5D%5Bterm%5D%5Bsubscribe%5D=1&query_dsl%5Bsize%5D=50&query_dsl%5Bfrom%5D=0&query_dsl%5Bsort%5D%5Bsubscribe_dateline%5D=desc`
+	query := `query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B0%5D%5Bterm%5D%5Bsubscribe%5D=1&query_dsl%5Bquery%5D%5Bbool%5D%5Bmust%5D%5B1%5D%5Bmatch%5D%5Bcomment.mobile%5D=18513502886&query_dsl%5Bsize%5D=50&query_dsl%5Bfrom%5D=0&query_dsl%5Bsort%5D%5Bsubscribe_dateline%5D=desc`
 
 	decoder := NewForm(query)
 	dest, err := decoder.Decode()

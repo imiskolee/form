@@ -24,3 +24,8 @@
 func NewForm(raw string) *Form
 
 func (form *Form) Decode() (map[string]interface{}, error)
+
+
+
+#### More Details
+

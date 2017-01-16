@@ -55,28 +55,6 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 
 	for _, c := range u {
 		switch c {
-		case '.':
-			//php replace . to _
-			if state == 0 {
-				c = '_'
-			}
-		/*
-			case '[':
-				if state == 0 && len(current) > 0 {
-					paths = append(paths, current)
-					current = ""
-					continue
-				}
-				if state == 0 {
-					continue
-				}
-			case ']':
-				if state == 0 {
-					paths = append(paths, current)
-					current = ""
-					continue
-				}
-		*/
 		case '&':
 			if state == 1 {
 				insertValue(&vals, key, current)
