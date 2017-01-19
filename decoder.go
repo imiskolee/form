@@ -1,7 +1,10 @@
 package form
 
-import "fmt"
-import "net/url"
+import (
+	"fmt"
+	"net/url"
+	"strings"
+)
 
 /**
 用于支持PHP的$_POST解析。
@@ -47,36 +50,41 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 
 	vals := make(map[string]interface{})
 
-	state := 0
-
 	current := ""
 
-	var key string
-
 	for _, c := range u {
+
 		switch c {
+
 		case '&':
-			if state == 1 {
-				insertValue(&vals, key, current)
-				current = ""
+			pair := current
+			index := strings.Index(pair, "=")
+			if index > 0 {
+				key := pair[:index]
+				val := pair[index+1:]
+
+				insertValue(&vals, key, val)
+			} else {
+				insertValue(&vals, pair, "")
 			}
-			state = 0
+			current = ""
 			continue
-		case '=':
-			if state == 0 {
-				if len(current) > 0 {
-					key = current
-					current = ""
-				}
-				state = 1
-				continue
-			}
+		default:
+			current = current + string(c)
+
 		}
-		current = current + string(c)
 	}
 
-	if state == 1 {
-		insertValue(&vals, key, current)
+	if len(current) > 0 {
+		pair := current
+		index := strings.Index(pair, "=")
+		if index > 0 {
+			key := pair[:index]
+			val := pair[index+1:]
+			insertValue(&vals, key, val)
+		} else {
+			insertValue(&vals, pair, "")
+		}
 		current = ""
 	}
 	return form.parseArray(vals), nil

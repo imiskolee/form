@@ -170,3 +170,15 @@ func Test_RawQueryCase13(t *testing.T) {
 
 	fmt.Println(query, string(dd), err)
 }
+
+func Test_RawQueryCase14(t *testing.T) {
+
+	query := `a==b&c=d&e&f====g&g[a]=a`
+	decoder := NewForm(query)
+
+	dest, err := decoder.Decode()
+
+	dd, _ := json.Marshal(dest)
+
+	fmt.Println(query, string(dd), err)
+}
