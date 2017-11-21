@@ -122,12 +122,11 @@ func insertValue(destP *map[string]interface{}, key string, val string,need bool
 	if len(current) > 0 {
 		path = append(path, current)
 	}
-
 	dest := *destP
 	for i := 0; i < len(path)-1; i++ {
 		p := path[i]
 		if p == "" {
-			p = fmt.Sprint(len(dest))
+			p = "0"
 		}
 		if _, ok := dest[p].(map[string]interface{}); !ok {
 			dest[p] = make(map[string]interface{})
