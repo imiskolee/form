@@ -97,10 +97,7 @@ func (form *Form) Decode() (map[string]interface{}, error) {
 }
 
 func insertValue(destP *map[string]interface{}, key string, val string,need bool) {
-
-	if need {
-		key, _ = url.QueryUnescape(key)
-	}
+	key,_ = url.PathUnescape(key)
 
 	var path []string
 	var current string
@@ -141,9 +138,7 @@ func insertValue(destP *map[string]interface{}, key string, val string,need bool
 	if p == "" {
 		p = fmt.Sprint(len(dest))
 	}
-	if need {
-		val, _ = url.QueryUnescape(val)
-	}
+	val,_ = url.PathUnescape(val)
 	dest[p] = val
 }
 
