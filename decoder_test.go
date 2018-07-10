@@ -182,3 +182,16 @@ func Test_RawQueryCase14(t *testing.T) {
 
 	fmt.Println(query, string(dd), err)
 }
+
+
+func Test_RawQueryCase15(t *testing.T) {
+
+	query := `a[][a]=1&a[][b]=2&a[][a]=3&a[0][c][]=4&a[0][c][]=5`
+	decoder := NewForm(query)
+
+	dest, err := decoder.Decode()
+
+	dd, _ := json.Marshal(dest)
+
+	fmt.Println(query, string(dd), err)
+}
